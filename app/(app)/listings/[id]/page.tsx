@@ -14,7 +14,7 @@ import { formatRelativeTime, formatYen } from "@/lib/utils";
 export default async function ListingDetailPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const listing = getListing(params.id);
+  const listing = await getListing(params.id);
   if (!listing) notFound();
 
   const isOwn = listing.userId === user.id;

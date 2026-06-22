@@ -8,14 +8,14 @@ import { Card, CardBody, CardTitle } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Banner } from "@/components/ui/Banner";
 
-export default function ShopDetailPage({
+export default async function ShopDetailPage({
   params,
   searchParams,
 }: {
   params: { id: string };
   searchParams: { sent?: string };
 }) {
-  const shop = getShop(params.id);
+  const shop = await getShop(params.id);
   if (!shop) notFound();
   const sent = searchParams.sent === "1";
 

@@ -34,9 +34,9 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   if (!city) return { error: "市区町村を入力してください。" };
   if (!agreeTerms) return { error: "利用規約・プライバシーポリシーへの同意が必要です。" };
   if (!isAdult) return { error: "18歳以上であることの確認が必要です。" };
-  if (emailExists(email)) return { error: "このメールアドレスは既に登録されています。" };
+  if (await emailExists(email)) return { error: "このメールアドレスは既に登録されています。" };
 
-  const user = createUser({
+  const user = await createUser({
     email,
     passwordHash: hashPassword(password),
     nickname,
@@ -56,7 +56,7 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   if (!email || !password) return { error: "メールアドレスとパスワードを入力してください。" };
-  const row = getUserRowByEmail(email);
+  const row = await getUserRowByEmail(email);
   if (!row || !verifyPassword(password, row.password_hash)) {
     return { error: "メールアドレスまたはパスワードが正しくありません。" };
   }
@@ -84,7 +84,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   if (!prefecture) return { error: "都道府県を入力してください。" };
   if (!city) return { error: "市区町村を入力してください。" };
 
-  updateUserProfile(user.id, {
+  await updateUserProfile(user.id, {
     nickname, prefecture, city,
     island: island || undefined,
     realName: realName || undefined,

@@ -12,21 +12,22 @@ import {
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const conv = getConversation(params.id, user.id);
+  const conv = await getConversation(params.id, user.id);
   if (!conv) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
-  markConversationRead(params.id, user.id);
-  return NextResponse.json({
-    messages: listMessages(params.id),
-    transaction: getOrCreateTransaction(params.id, user.id),
-  });
+  await markConversationRead(params.id, user.id);
+  const [messages, transaction] = await Promise.all([
+    listMessages(params.id),
+    getOrCreateTransaction(params.id, user.id),
+  ]);
+  return NextResponse.json({ messages, transaction });
 }
 
 // メッセージ送信
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const conv = getConversation(params.id, user.id);
+  const conv = await getConversation(params.id, user.id);
   if (!conv) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const body = await req.json().catch(() => ({}));
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!text && !imageUrl) {
     return NextResponse.json({ error: "empty" }, { status: 400 });
   }
-  const message = sendMessage({
+  const message = await sendMessage({
     conversationId: params.id,
     senderId: user.id,
     text: text || undefined,

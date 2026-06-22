@@ -13,8 +13,7 @@ import { cn, formatRelativeTime } from "@/lib/utils";
 export default async function EmergencyBoardPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const mode = getEmergencyMode();
-  const alerts = listStockAlerts();
+  const [mode, alerts] = await Promise.all([getEmergencyMode(), listStockAlerts()]);
   const myLocation = formatLocation(user);
 
   return (

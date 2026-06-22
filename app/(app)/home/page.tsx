@@ -8,20 +8,45 @@ import { Banner } from "@/components/ui/Banner";
 import { Chip } from "@/components/ui/Chip";
 import { CATEGORY_LABELS, STOCK_STATUS_LABELS, formatLocation } from "@/types";
 import { formatRelativeTime, formatYen } from "@/lib/utils";
+import type { Listing, StockAlert } from "@/types";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const mode = getEmergencyMode();
+  const mode = await getEmergencyMode();
 
   if (mode.active) {
-    return <EmergencyHome warningText={mode.warningText} />;
+    const [freeOffers, allAlerts] = await Promise.all([
+      listListings({ freeOnly: true }),
+      listStockAlerts(),
+    ]);
+    return (
+      <EmergencyHome
+        warningText={mode.warningText}
+        freeOffers={freeOffers}
+        recentAlerts={allAlerts.slice(0, 4)}
+      />
+    );
   }
-  return <NormalHome nickname={user.nickname} location={formatLocation(user!)} />;
+  const featured = (await listListings()).slice(0, 4);
+  return (
+    <NormalHome
+      nickname={user.nickname}
+      location={formatLocation(user!)}
+      featured={featured}
+    />
+  );
 }
 
-function NormalHome({ nickname, location }: { nickname: string; location: string }) {
-  const featured = listListings().slice(0, 4);
+function NormalHome({
+  nickname,
+  location,
+  featured,
+}: {
+  nickname: string;
+  location: string;
+  featured: Listing[];
+}) {
 
   return (
     <div className="container-app space-y-8 py-6">
@@ -113,9 +138,15 @@ function NormalHome({ nickname, location }: { nickname: string; location: string
   );
 }
 
-function EmergencyHome({ warningText }: { warningText?: string }) {
-  const freeOffers = listListings({ freeOnly: true });
-  const recentAlerts = listStockAlerts().slice(0, 4);
+function EmergencyHome({
+  warningText,
+  freeOffers,
+  recentAlerts,
+}: {
+  warningText?: string;
+  freeOffers: Listing[];
+  recentAlerts: StockAlert[];
+}) {
 
   return (
     <div className="container-app space-y-6 py-6">

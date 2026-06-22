@@ -10,7 +10,7 @@ import { formatRelativeTime } from "@/lib/utils";
 export default async function ChatListPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const conversations = listConversationsForUser(user.id);
+  const conversations = await listConversationsForUser(user.id);
 
   return (
     <div className="container-app space-y-5 py-6">

@@ -11,12 +11,15 @@ import { ChatRoom } from "./ChatRoom";
 export default async function ChatDetailPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const conversation = getConversation(params.id, user.id);
+  const conversation = await getConversation(params.id, user.id);
   if (!conversation) notFound();
 
-  markConversationRead(params.id, user.id);
-  const messages = listMessages(params.id);
-  const transaction = getOrCreateTransaction(params.id, user.id)!;
+  await markConversationRead(params.id, user.id);
+  const [messages, transaction] = await Promise.all([
+    listMessages(params.id),
+    getOrCreateTransaction(params.id, user.id),
+  ]);
+  if (!transaction) notFound();
 
   return (
     <ChatRoom

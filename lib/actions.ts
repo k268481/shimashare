@@ -38,7 +38,7 @@ export async function createListingAction(formData: FormData): Promise<void> {
   const text = `${title} ${description}`;
   if (FORBIDDEN_KEYWORDS.some((k) => text.includes(k))) return; // 禁止品目はサーバ側でも拒否
 
-  const id = createListing({
+  const id = await createListing({
     userId: user!.id,
     title,
     description,
@@ -57,7 +57,7 @@ export async function deleteListingAction(formData: FormData): Promise<void> {
   if (!user) redirect("/login");
   const id = String(formData.get("listingId") ?? "");
   if (id) {
-    deleteListing(id, user!.id);
+    await deleteListing(id, user!.id);
     revalidatePath("/listings");
     revalidatePath("/mypage");
   }
@@ -69,7 +69,7 @@ export async function startChatAction(formData: FormData): Promise<void> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const listingId = String(formData.get("listingId") ?? "");
-  const conversationId = getOrCreateConversation(listingId, user!.id);
+  const conversationId = await getOrCreateConversation(listingId, user!.id);
   if (!conversationId) {
     redirect(`/listings/${listingId}`);
   }
@@ -85,7 +85,7 @@ export async function createShopRequestAction(formData: FormData): Promise<void>
   const quantity = Math.max(1, parseInt(String(formData.get("quantity") ?? "1"), 10) || 1);
   const note = String(formData.get("note") ?? "").trim();
   if (!shopId || !item) return;
-  createShopRequest({ userId: user!.id, shopId, item, quantity, note: note || undefined });
+  await createShopRequest({ userId: user!.id, shopId, item, quantity, note: note || undefined });
   revalidatePath(`/shops/${shopId}`);
   redirect(`/shops/${shopId}?sent=1`);
 }
@@ -103,7 +103,7 @@ export async function createStockAlertAction(formData: FormData): Promise<void> 
   const { formatLocation } = await import("@/types");
   const location = locationInput || formatLocation(user!);
   if (!item) return;
-  createStockAlert({
+  await createStockAlert({
     userId: user!.id,
     item,
     location,
@@ -122,7 +122,7 @@ export async function setEmergencyAction(formData: FormData): Promise<void> {
   if (!user) redirect("/login");
   if (user!.role !== "super_admin") return; // 権限チェック
   const active = formData.get("active") === "true";
-  setEmergencyMode(active);
+  await setEmergencyMode(active);
   revalidatePath("/", "layout");
   redirect("/mypage");
 }

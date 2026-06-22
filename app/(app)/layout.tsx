@@ -10,7 +10,7 @@ import { OfflineIndicator } from "@/components/layout/OfflineIndicator";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const mode = getEmergencyMode();
+  const mode = await getEmergencyMode();
 
   return (
     <EmergencyProvider mode={mode}>

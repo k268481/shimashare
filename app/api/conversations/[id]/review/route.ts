@@ -13,7 +13,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: "invalid_rating" }, { status: 400 });
   }
   const comment = typeof body.comment === "string" ? body.comment.trim() : undefined;
-  const ok = createReview({
+  const ok = await createReview({
     conversationId: params.id,
     reviewerId: user.id,
     rating,

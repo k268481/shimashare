@@ -3,8 +3,8 @@ import { listShops } from "@/lib/repos";
 import { Card, CardBody, CardTitle } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 
-export default function ShopsPage() {
-  const shops = listShops();
+export default async function ShopsPage() {
+  const shops = await listShops();
 
   return (
     <div className="container-app space-y-5 py-6">

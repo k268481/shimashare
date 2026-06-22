@@ -30,5 +30,5 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   if (!token) return null;
   const payload = await verifySession(token);
   if (!payload) return null;
-  return getUserById(payload.sub); // DB再作成等でユーザーが存在しない場合も null
+  return await getUserById(payload.sub); // DB再作成等でユーザーが存在しない場合も null
 });

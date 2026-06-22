@@ -9,7 +9,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const body = await req.json().catch(() => ({}));
   const completed = body.completed === true;
-  const tx = setTransactionCompleted(params.id, user.id, completed);
+  const tx = await setTransactionCompleted(params.id, user.id, completed);
   if (!tx) return NextResponse.json({ error: "not_found" }, { status: 404 });
   return NextResponse.json({ transaction: tx });
 }

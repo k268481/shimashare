@@ -25,9 +25,11 @@ const RATING_LABEL: Record<"good" | "normal" | "bad", string> = {
 export default async function MyPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?clearSession=1");
-  const myListings = listListingsByUser(user.id);
-  const reviews = getReviewSummary(user.id);
-  const mode = getEmergencyMode();
+  const [myListings, reviews, mode] = await Promise.all([
+    listListingsByUser(user.id),
+    getReviewSummary(user.id),
+    getEmergencyMode(),
+  ]);
 
   return (
     <div className="container-app space-y-5 py-6">
